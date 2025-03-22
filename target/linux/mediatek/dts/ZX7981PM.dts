@@ -265,7 +265,7 @@
 	mtketh-wan = "wan";
 	mtketh-lan = "lan";
 	mtketh-max-gmac = <1>;
-	status = "disabled";
+	status = "okay";
 };
 
 &spi0 {
