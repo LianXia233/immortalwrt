@@ -143,7 +143,6 @@ endef
 TARGET_DEVICES += ZX7981PM
 
 
-
 define Device/acelink_ew-7886cax
   DEVICE_VENDOR := Acelink
   DEVICE_MODEL := EW-7886CAX
