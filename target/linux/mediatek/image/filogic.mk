@@ -137,9 +137,11 @@ define Device/ZX7981PM
   DEVICE_VENDOR := YourVendor
   DEVICE_MODEL := ZX7981PM
   DEVICE_DTS := ZX7981PM
-  DEVICE_PACKAGES := kmod-mt7986-firmware kmod-mt7915-firmware
+  IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
+  DEVICE_PACKAGES := kmod-usb3 kmod-mt7915e kmod-mt7981-firmware mt7981-wo-firmware automount
 endef
 TARGET_DEVICES += ZX7981PM
+
 
 
 define Device/acelink_ew-7886cax
