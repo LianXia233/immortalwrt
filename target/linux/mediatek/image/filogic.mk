@@ -134,32 +134,14 @@ endef
 TARGET_DEVICES += abt_asr3000
 
 # 定义 ZX7981PM 设备信息
-define Device/ZX7981PM
+define Device/zx7981pm
   DEVICE_VENDOR := ZX
-  DEVICE_MODEL := ZX7981PM
+  DEVICE_MODEL := 7981PM
   DEVICE_DTS := zx7981pm
-  DEVICE_DTS_DIR := ../dts
-  SUPPORTED_DEVICES += zx7981pm mediatek,mt7981-rfb,ubi
-  UBINIZE_OPTS := -E 5
-  BLOCKSIZE := 128k
-  PAGESIZE := 2048
-  IMAGE_SIZE := 65536k
-  KERNEL_IN_UBI := 1
-
-  # 生成的固件文件
-  IMAGES += factory.bin sysupgrade.bin
-  IMAGE/factory.bin := append-ubi | check-size $$$$(IMAGE_SIZE)
-  IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
-
-  # 设备默认安装的软件包
-  DEVICE_PACKAGES := kmod-usb3 kmod-mt7915e kmod-mt7981-firmware mt7981-wo-firmware automount
+  IMAGE_SIZE := 64m
+  DEVICE_PACKAGES := kmod-mt7981-firmware kmod-mt7915-firmware
 endef
-
-# 添加 ZX7981PM 到目标设备列表
-TARGET_DEVICES += ZX7981PM
-
-
-
+TARGET_DEVICES += zx7981pm
 
 define Device/acelink_ew-7886cax
   DEVICE_VENDOR := Acelink
