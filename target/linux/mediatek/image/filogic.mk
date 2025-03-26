@@ -133,6 +133,7 @@ define Device/abt_asr3000
 endef
 TARGET_DEVICES += abt_asr3000
 
+# 定义 ZX7981PM 设备信息
 define Device/ZX7981PM
   DEVICE_VENDOR := ZX
   DEVICE_MODEL := ZX7981PM
@@ -144,12 +145,19 @@ define Device/ZX7981PM
   PAGESIZE := 2048
   IMAGE_SIZE := 65536k
   KERNEL_IN_UBI := 1
-  IMAGES += factory.bin
+
+  # 生成的固件文件
+  IMAGES += factory.bin sysupgrade.bin
   IMAGE/factory.bin := append-ubi | check-size $$$$(IMAGE_SIZE)
   IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
+
+  # 设备默认安装的软件包
   DEVICE_PACKAGES := kmod-usb3 kmod-mt7915e kmod-mt7981-firmware mt7981-wo-firmware automount
 endef
+
+# 添加 ZX7981PM 到目标设备列表
 TARGET_DEVICES += ZX7981PM
+
 
 
 
