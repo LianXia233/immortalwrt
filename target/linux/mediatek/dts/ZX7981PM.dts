@@ -1,0 +1,121 @@
+// SPDX-License-Identifier: (GPL-2.0 OR MIT)
+
+/dts-v1/;
+#include "mt7981.dtsi"
+
+#include <dt-bindings/input/input.h>
+
+/ {
+	model = "ZX7981PM";
+	compatible = "ZX7981PM";
+
+	chosen {
+		bootargs = "console=ttyS0,115200n1 loglevel=8  \
+			earlycon=uart8250,mmio32,0x11002000";
+	};
+
+	memory {
+		// fpga ddr2: 128MB*2
+		reg = <0 0x40000000 0 0x20000000>;
+	};
+
+	gpio-leds {
+		compatible = "gpio-leds";
+
+		5gblue {
+			label = "lede:blue:5gblue";
+			gpios = <&pio 12 0>;
+			linux,default-trigger = "none";
+			default-state = "off";
+		};
+
+		5gyellow {
+			label = "lede:blue:5gyellow";
+			gpios = <&pio 11 0>;
+			linux,default-trigger = "none";
+			default-state = "off";
+		};
+
+		wifi {
+			label = "lede:blue:wifi";
+			gpios = <&pio 9 0>;
+			linux,default-trigger = "none";
+			default-state = "off";
+		};
+
+		4gblue {
+			label = "lede:blue:4gblue";
+			gpios = <&pio 10 0>;
+			linux,default-trigger = "none";
+			default-state = "off";
+		};
+
+		4gyellow {
+			label = "lede:blue:4gyellow";
+			gpios = <&pio 13 0>;
+			linux,default-trigger = "none";
+			default-state = "off";
+		};
+
+		lan2 {
+			label = "lede:blue:lan2";
+			gpios = <&pio 4 1>;
+			linux,default-trigger = "none";
+			default-state = "off";
+		};
+
+		lan3 {
+			label = "lede:blue:lan3";
+			gpios = <&pio 22 1>;
+			linux,default-trigger = "none";
+			default-state = "off";
+		};
+
+		wan {
+			label = "lede:blue:wan";
+			gpios = <&pio 8 1>;
+			linux,default-trigger = "none";
+			default-state = "off";
+		};
+	};
+
+	&spi_nand {
+		spi-cal-enable;
+		spi-cal-mode = "read-data";
+		spi-cal-datalen = <7>;
+		spi-cal-data = /bits/ 8 <0x53 0x50 0x49 0x4E 0x41 0x4E 0x44>;
+		spi-cal-addrlen = <5>;
+		spi-cal-addr = /bits/ 32 <0x0 0x0 0x0 0x0 0x0>;
+
+		mediatek,nmbm;
+		mediatek,bmt-max-ratio = <1>;
+		mediatek,bmt-max-reserved-blocks = <64>;
+	};
+
+	&ubi {
+		reg = <0x5c0000 0x4000000>;
+	};
+
+	&uart0 {
+		status = "okay";
+	};
+
+	&watchdog {
+		status = "okay";
+	};
+
+	&eth {
+		status = "okay";
+		gmac0: mac@0 {
+			compatible = "mediatek,eth-mac";
+			reg = <0>;
+			phy-mode = "2500base-x";
+
+			fixed-link {
+				speed = <2500>;
+				full-duplex;
+				pause;
+			};
+		};
+	};
+};
