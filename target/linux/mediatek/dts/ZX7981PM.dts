@@ -1,5 +1,3 @@
-// SPDX-License-Identifier: (GPL-2.0 OR MIT)
-
 /dts-v1/;
 #include "mt7981.dtsi"
 
@@ -8,7 +6,6 @@
 / {
 	model = "ZX7981PM";
 	compatible = "ZX7981PM";
-
 	chosen {
 		bootargs = "console=ttyS0,115200n1 loglevel=8  \
 			earlycon=uart8250,mmio32,0x11002000";
@@ -79,43 +76,18 @@
 		};
 	};
 
-	&spi_nand {
-		spi-cal-enable;
-		spi-cal-mode = "read-data";
-		spi-cal-datalen = <7>;
-		spi-cal-data = /bits/ 8 <0x53 0x50 0x49 0x4E 0x41 0x4E 0x44>;
-		spi-cal-addrlen = <5>;
-		spi-cal-addr = /bits/ 32 <0x0 0x0 0x0 0x0 0x0>;
+	gpio-export {
+		compatible = "gpio-export";
+		5gpower {
+			gpio-export,name = "5gpower";
+			gpio-export,output = <0>;
+			gpios = <&pio 25 0>;
+		};
 
-		mediatek,nmbm;
-		mediatek,bmt-max-ratio = <1>;
-		mediatek,bmt-max-reserved-blocks = <64>;
-	};
-
-	&ubi {
-		reg = <0x5c0000 0x4000000>;
-	};
-
-	&uart0 {
-		status = "okay";
-	};
-
-	&watchdog {
-		status = "okay";
-	};
-
-	&eth {
-		status = "okay";
-		gmac0: mac@0 {
-			compatible = "mediatek,eth-mac";
-			reg = <0>;
-			phy-mode = "2500base-x";
-
-			fixed-link {
-				speed = <2500>;
-				full-duplex;
-				pause;
-			};
+		fan {
+			gpio-export,name = "fan";
+			gpio-export,output = <1>;
+			gpios = <&pio 5 0>;
 		};
 	};
 };
