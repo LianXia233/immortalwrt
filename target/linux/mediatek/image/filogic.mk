@@ -134,22 +134,18 @@ endef
 TARGET_DEVICES += abt_asr3000
 
 # 定义 ZX7981PM 设备信息
-define Device/ZX7981PM
+define Device/zx7981pm
   DEVICE_VENDOR := MediaTek
   DEVICE_MODEL := ZX7981PM
-  DEVICE_DTS := ZX7981PM
+  DEVICE_DTS := mt7981b-zx7981pm
   DEVICE_DTS_DIR := ../dts
-  SUPPORTED_DEVICES := ZX7981PM
-  UBINIZE_OPTS := -E 5
+  SUPPORTED_DEVICES := mediatek,mt7981b-zx7981pm
+  IMAGE_SIZE := 114688k  # 0x7000000 = 112MB
   BLOCKSIZE := 128k
   PAGESIZE := 2048
-  IMAGE_SIZE := 65536k
-  KERNEL_IN_UBI := 1
-  IMAGES += factory.bin
-  IMAGE/factory.bin := append-ubi | check-size $$$$(IMAGE_SIZE)
-  IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
+  KERNEL_LOADADDR := 0x41f00000
 endef
-TARGET_DEVICES += ZX7981PM
+TARGET_DEVICES += zx7981pm
 
 define Device/acelink_ew-7886cax
   DEVICE_VENDOR := Acelink
