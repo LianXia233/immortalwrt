@@ -1,303 +1,156 @@
 /dts-v1/;
 #include "mt7981.dtsi"
 
-#include <dt-bindings/input/input.h>
-
 / {
-	model = "ZX7981PM";
-	compatible = "ZX7981PM";
-	chosen {
-		bootargs = "console=ttyS0,115200n1 loglevel=8  \
-				earlycon=uart8250,mmio32,0x11002000";
-	};
+    model = "MediaTek ZX7981PM Router";
+    compatible = "mediatek,mt7981b-zx7981pm", "mediatek,mt7981";
 
-	memory {
-		reg = <0 0x40000000 0 0x10000000>; // 修正为 256MB
-	};
+    chosen {
+        bootargs = "console=ttyS0,115200n1 earlycon=uart8250,mmio32,0x11002000 loglevel=8";
+    };
 
-	gpio-leds {
-		compatible = "gpio-leds";
+    memory {
+        device_type = "memory";
+        reg = <0 0x40000000 0 0x20000000>; // 512MB DDR3
+    };
 
-		5gblue {
-			label = "lede:blue:5gblue";
-			gpios = <&pio 12 0>;
-			linux,default-trigger = "none";
-			default-state = "off";
-		};
+    leds {
+        compatible = "gpio-leds";
 
-		5gyellow {
-			label = "lede:blue:5gyellow";
-			gpios = <&pio 11 0>;
-			linux,default-trigger = "none";
-			default-state = "off";
-		};
+        led_5g_blue: 5g-blue {
+            label = "blue:5g";
+            gpios = <&pio 12 GPIO_ACTIVE_HIGH>;
+            default-state = "off";
+        };
 
-		wifi {
-			label = "lede:blue:wifi";
-			gpios = <&pio 9 0>;
-			linux,default-trigger = "none";
-			default-state = "off";
-		};
+        led_wan: wan {
+            label = "blue:wan";
+            gpios = <&pio 8 GPIO_ACTIVE_HIGH>;
+            linux,default-trigger = "netdev";
+        };
+    };
 
-		4gblue {
-			label = "lede:blue:4gblue";
-			gpios = <&pio 10 0>;
-			linux,default-trigger = "none";
-			default-state = "off";
-		};
+    gpio-keys {
+        compatible = "gpio-keys";
+        poll-interval = <50>;
 
-		4gyellow {
-			label = "lede:blue:4gyellow";
-			gpios = <&pio 13 0>;
-			linux,default-trigger = "none";
-			default-state = "off";
-		};
-
-		lan2 {
-			label = "lede:blue:lan2";
-			gpios = <&pio 4 1>;
-			linux,default-trigger = "none";
-			default-state = "off";
-		};
-
-		lan3 {
-			label = "lede:blue:lan3";
-			gpios = <&pio 22 1>;
-			linux,default-trigger = "none";
-			default-state = "off";
-		};
-
-		wan {
-			label = "lede:blue:wan";
-			gpios = <&pio 8 1>;
-			linux,default-trigger = "none";
-			default-state = "off";
-		};
-	};
-
-	gpio-export {
-		compatible = "gpio-export";
-		5gpower {
-			gpio-export,name = "5gpower";
-			gpio-export,output = <0>;
-			gpios = <&pio 25 1>; // 修正为 ACTIVE_LOW
-		};
-
-		fan {
-			gpio-export,name = "fan";
-			gpio-export,output = <1>;
-			gpios = <&pio 5 1>; // 修正为 ACTIVE_LOW
-		};
-
-		5gpwrkey {
-			gpio-export,name = "5gpwrkey";
-			gpio-export,output = <0>;
-			gpios = <&pio 2 1>; // 修正为 ACTIVE_LOW
-		};
-
-		5gsim {
-			gpio-export,name = "5gsim";
-			gpio-export,output = <1>;
-			gpios = <&pio 15 1>; // 修正为 ACTIVE_LOW
-		};
-	};
-
-	gpio-keys {
-		compatible = "gpio-keys";
-		poll-interval = <20>;
-
-		reset {
-			label = "reset";
-			gpios = <&pio 1 1>;
-			linux,code = <KEY_RESTART>;
-		};
-
-		wps {
-			label = "wps";
-			gpios = <&pio 7 1>;
-			linux,code = <KEY_WPS_BUTTON>;
-		};
-	};
-
-	nmbm_spim_nand {
-		compatible = "generic,nmbm";
-		lower-mtd-device = <&spi_nand>;
-		forced-create;
-
-		partitions {
-			compatible = "fixed-partitions";
-			#address-cells = <1>;
-			#size-cells = <1>;
-
-			partition@0 {
-				label = "BL2";
-				reg = <0x00000 0x0100000>;
-			};
-
-			partition@100000 {
-				label = "u-boot-env";
-				reg = <0x0100000 0x0080000>;
-			};
-
-			factory: partition@180000 {
-				label = "Factory";
-				reg = <0x180000 0x0200000>;
-			};
-
-			partition@380000 {
-				label = "FIP";
-				reg = <0x380000 0x0200000>;
-			};
-
-			partition@580000 {
-				label = "woem";
-				reg = <0x580000 0xa0000>;
-			};
-
-			partition@620000 {
-				label = "ubi";
-				reg = <0x620000 0x3800000>;
-			};
-
-			partition@3E20000 {
-				label = "ubi2";
-				reg = <0x3E20000 0x3800000>;
-			};
-
-			partition@7620000 {
-				label = "wtinfo";
-				reg = <0x7620000 0x60000>;
-			};
-
-			partition@7680000 {
-				label = "nvram";
-				reg = <0x7680000 0x60000>;
-			};
-		};
-	};
-};
-
-&uart0 {
-	status = "okay";
-};
-
-&watchdog {
-	status = "okay";
-};
-
-&eth {
-	status = "okay";
-
-	gmac0: mac@0 {
-		compatible = "mediatek,eth-mac";
-		reg = <0>;
-		phy-mode = "2500base-x";
-
-		fixed-link {
-			speed = <2500>;
-			full-duplex;
-			pause;
-		};
-	};
-
-	mdio: mdio-bus {
-		#address-cells = <1>;
-		#size-cells = <0>;
-
-		switch@0 {
-			compatible = "mediatek,mt7531";
-			reg = <31>;
-			reset-gpios = <&pio 39 0>;
-
-			ports {
-				#address-cells = <1>;
-				#size-cells = <0>;
-
-				port@1 {
-					reg = <1>;
-					label = "lan2";
-				};
-
-				port@2 {
-					reg = <2>;
-					label = "lan3";
-				};
-
-				port@5 {
-					reg = <5>;
-					label = "wan";
-					phy-mode = "2500base-x";
-
-					fixed-link {
-						speed = <2500>;
-						full-duplex;
-						pause;
-					};
-				};
-
-				port@6 {
-					reg = <6>;
-					label = "cpu";
-					ethernet = <&gmac0>;
-					phy-mode = "2500base-x";
-
-					fixed-link {
-						speed = <2500>;
-						full-duplex;
-						pause;
-					};
-				};
-			};
-		};
-	};
+        reset {
+            label = "reset";
+            gpios = <&pio 1 GPIO_ACTIVE_LOW>;
+            linux,code = <KEY_RESTART>;
+        };
+    };
 };
 
 &spi0 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&spi0_flash_pins>;
-	status = "okay";
+    pinctrl-names = "default";
+    pinctrl-0 = <&spi0_flash_pins>;
+    status = "okay";
 
-	spi_nand: spi_nand@0 {
-		compatible = "spi-nand";
-		reg = <0>;
-		spi-max-frequency = <52000000>;
-		spi-tx-bus-width = <4>;
-		spi-rx-bus-width = <4>;
-	};
+    spi_nand: spi-nand@0 {
+        #address-cells = <1>;
+        #size-cells = <1>;
+        compatible = "spi-nand";
+        reg = <0>;
+        spi-max-frequency = <80000000>;
+        spi-tx-bus-width = <4>;
+        spi-rx-bus-width = <4>;
+
+        partitions {
+            compatible = "fixed-partitions";
+            #address-cells = <1>;
+            #size-cells = <1>;
+
+            partition@0 {
+                label = "bl2";
+                reg = <0x000000 0x100000>;
+            };
+
+            partition@100000 {
+                label = "u-boot-env";
+                reg = <0x100000 0x80000>;
+            };
+
+            partition@180000 {
+                label = "factory";
+                reg = <0x180000 0x200000>;
+                read-only;
+            };
+
+            partition@380000 {
+                label = "fip";
+                reg = <0x380000 0x200000>;
+                read-only;
+            };
+
+            partition@580000 {
+                label = "ubi";
+                reg = <0x580000 0x7000000>;  // 112MB Main Storage
+            };
+        };
+    };
+};
+
+&eth {
+    status = "okay";
+    mediatek,ethsys = <&ethsys>;
+
+    gmac0: mac@0 {
+        compatible = "mediatek,eth-mac";
+        reg = <0>;
+        phy-mode = "2500base-x";
+        fixed-link {
+            speed = <2500>;
+            full-duplex;
+            pause;
+        };
+    };
+
+    mdio: mdio-bus {
+        #address-cells = <1>;
+        #size-cells = <0>;
+
+        switch: switch@1f {
+            compatible = "mediatek,mt7531";
+            reg = <0x1f>;
+            reset-gpios = <&pio 39 GPIO_ACTIVE_HIGH>;
+            reset-duration = <20>;
+        };
+    };
 };
 
 &pio {
-	spi0_flash_pins: spi0-pins {
-		mux {
-			function = "spi";
-			groups = "spi0", "spi0_wp_hold";
-		};
+    spi0_flash_pins: spi0-pins {
+        mux {
+            function = "spi";
+            groups = "spi0", "spi0_wp_hold";
+        };
 
-		conf-pu {
-			pins = "SPI0_CS", "SPI0_HOLD", "SPI0_WP";
-			drive-strength = <MTK_DRIVE_8mA>;
-			bias-pull-up = <MTK_PUPD_SET_R1R0_11>;
-		};
+        conf-pu {
+            pins = "SPI0_CS", "SPI0_HOLD", "SPI0_WP";
+            drive-strength = <MTK_DRIVE_8mA>;
+            bias-pull-up = <MTK_PUPD_SET_R1R0_11>;
+        };
 
-		conf-pd {
-			pins = "SPI0_CLK", "SPI0_MOSI", "SPI0_MISO";
-			drive-strength = <MTK_DRIVE_8mA>;
-			bias-pull-down = <MTK_PUPD_SET_R1R0_11>;
-		};
-	};
+        conf-pd {
+            pins = "SPI0_CLK", "SPI0_MOSI", "SPI0_MISO";
+            drive-strength = <MTK_DRIVE_8mA>;
+            bias-pull-down = <MTK_PUPD_SET_R1R0_11>;
+        };
+    };
+};
+
+&watchdog {
+    status = "okay";
+};
+
+&uart0 {
+    status = "okay";
 };
 
 &xhci {
-	mediatek,u3p-dis-msk = <0x0>;
-	phys = <&u2port0 PHY_TYPE_USB2>,
-	       <&u3port0 PHY_TYPE_USB3>;
-	status = "okay";
-};
-
-&wed {
-	dy_txbm_enable = "true";
-	dy_txbm_budget = <8>;
-	txbm_init_sz = <8>;
-	txbm_max_sz = <32>;
-	status = "okay";
+    mediatek,u3p-dis-msk = <0x0>;
+    phys = <&u2port0 PHY_TYPE_USB2>,
+           <&u3port0 PHY_TYPE_USB3>;
+    status = "okay";
 };
