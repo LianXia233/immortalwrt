@@ -238,7 +238,6 @@
 	};
 };
 
-// 已删除HNAT节点（原位置在此）
 
 &spi0 {
 	pinctrl-names = "default";
