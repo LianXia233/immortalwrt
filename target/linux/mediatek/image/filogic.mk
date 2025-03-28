@@ -134,20 +134,22 @@ endef
 TARGET_DEVICES += abt_asr3000
 
 # 定义 ZX7981PM 设备信息
+# 定义 ZX7981PM 设备信息
 define Device/zx7981pm
   DEVICE_VENDOR := ZX
   DEVICE_MODEL := ZX7981PM
   DEVICE_DTS := mt7981b-zx7981pm
   DEVICE_DTS_DIR := ../dts
-  DEVICE_PACKAGES := kmod-mt7915e kmod-mt7981-firmware mt7981-wo-firmware kmod-usb3 \
-	automount f2fsck mkf2fs
-  SUPPORTED_DEVICES := zx,zx7981pm mediatek,mt7981
+  SUPPORTED_DEVICES += zx,zx7981pm mediatek,mt7981
+  DEVICE_PACKAGES := \
+    kmod-usb3 kmod-mt7915e kmod-mt7981-firmware \
+    mt7981-wo-firmware automount f2fsck mkf2fs
   UBINIZE_OPTS := -E 5
   BLOCKSIZE := 128k
   PAGESIZE := 2048
-  IMAGE_SIZE := 65536k
+  IMAGE_SIZE := 57344k
   KERNEL_IN_UBI := 1
-  IMAGES += factory.bin
+  IMAGES := sysupgrade.bin factory.bin
   IMAGE/factory.bin := append-ubi | check-size $$$$(IMAGE_SIZE)
   IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
 endef
