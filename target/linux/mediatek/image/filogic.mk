@@ -142,8 +142,6 @@ define Device/zx7981pm
   IMAGE_SIZE := 56320k
   BLOCKSIZE := 128k
   PAGESIZE := 2048
-  KERNEL_IN_UBI := 1
-  UBINIZE_OPTS := -E 5
   IMAGES := firmware.bin
   IMAGE/firmware.bin := append-ubi
 endef
