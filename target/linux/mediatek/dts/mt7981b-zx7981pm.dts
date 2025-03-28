@@ -111,7 +111,7 @@
     };
 
     nmbm_spim_nand {
-        compatible = "generic,nmbm";
+        compatible = "mediatek,mtk-nmbm-spim-nand"; // 修正兼容性以匹配驱动
         lower-mtd-device = <&spi_nand>;
         forced-create;
 
@@ -123,6 +123,7 @@
             partition@0 {
                 label = "BL2";
                 reg = <0x000000 0x100000>;
+                read-only;
             };
 
             partition@100000 {
@@ -133,11 +134,13 @@
             factory: partition@180000 {
                 label = "Factory";
                 reg = <0x180000 0x200000>;
+                read-only;
             };
 
             partition@380000 {
                 label = "FIP";
                 reg = <0x380000 0x200000>;
+                read-only;
             };
 
             partition@580000 {
@@ -147,22 +150,22 @@
 
             partition@620000 {
                 label = "ubi";
-                reg = <0x620000 0x3800000>;
+                reg = <0x620000 0x3e00000>; // 调整大小确保后续分区不重叠
             };
 
-            partition@3e20000 {
+            partition@4420000 {
                 label = "ubi2";
-                reg = <0x3e20000 0x3800000>;
+                reg = <0x4420000 0x3e00000>;
             };
 
-            partition@7620000 {
+            partition@8220000 {
                 label = "wtinfo";
-                reg = <0x7620000 0x060000>;
+                reg = <0x8220000 0x060000>;
             };
 
-            partition@7680000 {
+            partition@8280000 {
                 label = "nvram";
-                reg = <0x7680000 0x060000>;
+                reg = <0x8280000 0x060000>;
             };
         };
     };
@@ -196,8 +199,9 @@
 
         switch@0 {
             compatible = "mediatek,mt7531";
-            reg = <31>;
+            reg = <0>; // 修正MDIO地址为0，根据MT7531文档
             reset-gpios = <&pio 39 GPIO_ACTIVE_LOW>;
+            reset-duration = <100>;
 
             ports {
                 #address-cells = <1>;
@@ -251,6 +255,14 @@
         spi-max-frequency = <52000000>;
         spi-tx-bus-width = <4>;
         spi-rx-bus-width = <4>;
+
+        // 添加校准参数
+        spi-cal-enable;
+        spi-cal-mode = "read-data";
+        spi-cal-datalen = <7>;
+        spi-cal-data = /bits/ 8 <0x53 0x50 0x49 0x4E 0x41 0x4E 0x44>;
+        spi-cal-addrlen = <5>;
+        spi-cal-addr = /bits/ 32 <0x0 0x0 0x0 0x0 0x0>;
     };
 };
 
