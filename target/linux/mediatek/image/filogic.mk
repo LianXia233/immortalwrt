@@ -133,8 +133,6 @@ define Device/abt_asr3000
 endef
 TARGET_DEVICES += abt_asr3000
 
-# 定义 ZX7981PM 设备信息
-# 定义 ZX7981PM 设备信息
 define Device/zx7981pm
   DEVICE_VENDOR := ZX
   DEVICE_MODEL := ZX7981PM
