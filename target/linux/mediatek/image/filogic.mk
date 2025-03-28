@@ -138,12 +138,17 @@ define Device/zx7981pm
   DEVICE_MODEL := ZX7981PM
   DEVICE_DTS := mt7981b-zx7981pm
   DEVICE_DTS_DIR := ../dts
+  DEVICE_PACKAGES := kmod-mt7915e kmod-mt7981-firmware mt7981-wo-firmware kmod-usb3 \
+	automount f2fsck mkf2fs
   SUPPORTED_DEVICES := zx,zx7981pm mediatek,mt7981
-  IMAGE_SIZE := 56320k
+  UBINIZE_OPTS := -E 5
   BLOCKSIZE := 128k
   PAGESIZE := 2048
-  IMAGES := firmware.bin
-  IMAGE/firmware.bin := append-ubi
+  IMAGE_SIZE := 65536k
+  KERNEL_IN_UBI := 1
+  IMAGES += factory.bin
+  IMAGE/factory.bin := append-ubi | check-size $$$$(IMAGE_SIZE)
+  IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
 endef
 TARGET_DEVICES += zx7981pm
 
