@@ -133,17 +133,19 @@ define Device/abt_asr3000
 endef
 TARGET_DEVICES += abt_asr3000
 
-# 定义 ZX7981PM 设备信息
 define Device/zx7981pm
-  DEVICE_VENDOR := MediaTek
+  DEVICE_VENDOR := ZX
   DEVICE_MODEL := ZX7981PM
   DEVICE_DTS := mt7981b-zx7981pm
   DEVICE_DTS_DIR := ../dts
-  SUPPORTED_DEVICES := mediatek,mt7981b-zx7981pm
-  IMAGE_SIZE := 114688k  # 0x7000000 = 112MB
+  SUPPORTED_DEVICES := zx,zx7981pm mediatek,mt7981
+  IMAGE_SIZE := 56320k
   BLOCKSIZE := 128k
   PAGESIZE := 2048
-  KERNEL_LOADADDR := 0x41f00000
+  KERNEL_IN_UBI := 1
+  UBINIZE_OPTS := -E 5
+  IMAGES := firmware.bin
+  IMAGE/firmware.bin := append-ubi
 endef
 TARGET_DEVICES += zx7981pm
 
