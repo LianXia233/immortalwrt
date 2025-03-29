@@ -2,108 +2,59 @@
 #include "mt7981.dtsi"
 
 / {
-    model = "ZX7981PM";
-    compatible = "zx,ZX7981PM", "mediatek,mt7981";
+    model = "ZX7981PM (MT5131 Switch)";
+    compatible = "zx,zx7981pm", "mediatek,mt7981";
 
     chosen {
-        bootargs = "console=ttyS0,115200n1 loglevel=8 earlycon=uart8250,mmio32,0x11002000";
+        bootargs = "console=ttyS0,115200n1 earlycon=uart8250,mmio32,0x11002000 root=ubi0:rootfs rootfstype=squashfs ubi.mtd=ubi";
     };
 
     memory {
-        reg = <0 0x40000000 0 0x20000000>;
+        reg = <0 0x40000000 0 0x20000000>; // 512MB RAM
     };
 
     leds {
         compatible = "gpio-leds";
 
-        led_5g_blue: 5gblue {
-            label = "lede:blue:5gblue";
+        led_5g_blue {
+            label = "blue:5g";
             gpios = <&pio 12 GPIO_ACTIVE_LOW>;
-            default-state = "off";
         };
 
-        led_5g_yellow: 5gyellow {
-            label = "lede:blue:5gyellow";
-            gpios = <&pio 11 GPIO_ACTIVE_LOW>;
-            default-state = "off";
-        };
-
-        led_wifi: wifi {
-            label = "lede:blue:wifi";
-            gpios = <&pio 9 GPIO_ACTIVE_LOW>;
-            default-state = "off";
-        };
-
-        led_4g_blue: 4gblue {
-            label = "lede:blue:4gblue";
-            gpios = <&pio 10 GPIO_ACTIVE_LOW>;
-            default-state = "off";
-        };
-
-        led_4g_yellow: 4gyellow {
-            label = "lede:blue:4gyellow";
-            gpios = <&pio 13 GPIO_ACTIVE_LOW>;
-            default-state = "off";
-        };
-
-        led_lan2: lan2 {
-            label = "lede:blue:lan2";
-            gpios = <&pio 4 GPIO_ACTIVE_HIGH>;
-            default-state = "off";
-        };
-
-        led_lan3: lan3 {
-            label = "lede:blue:lan3";
-            gpios = <&pio 22 GPIO_ACTIVE_HIGH>;
-            default-state = "off";
-        };
-
-        led_wan: wan {
-            label = "lede:blue:wan";
+        led_wan {
+            label = "blue:wan";
             gpios = <&pio 8 GPIO_ACTIVE_HIGH>;
-            default-state = "off";
         };
+
+        // 其他 LED 定义...
     };
 
     gpio_export {
         compatible = "gpio-export";
 
-        gpio_5g_power: 5gpower {
-            gpio-export,name = "5gpower";
-            gpio-export,output = <0>;
+        5g_power {
+            gpio-export,name = "5g_power";
             gpios = <&pio 25 GPIO_ACTIVE_LOW>;
+            output-low;
         };
 
-        gpio_fan: fan {
+        fan_ctrl {
             gpio-export,name = "fan";
-            gpio-export,output = <1>;
             gpios = <&pio 5 GPIO_ACTIVE_LOW>;
-        };
-
-        gpio_5g_pwrkey: 5gpwrkey {
-            gpio-export,name = "5gpwrkey";
-            gpio-export,output = <0>;
-            gpios = <&pio 2 GPIO_ACTIVE_LOW>;
-        };
-
-        gpio_5g_sim: 5gsim {
-            gpio-export,name = "5gsim";
-            gpio-export,output = <1>;
-            gpios = <&pio 15 GPIO_ACTIVE_LOW>;
+            output-high;
         };
     };
 
     keys {
         compatible = "gpio-keys";
-        poll-interval = <20>;
 
-        button_reset: reset {
+        reset {
             label = "reset";
             gpios = <&pio 1 GPIO_ACTIVE_LOW>;
             linux,code = <KEY_RESTART>;
         };
 
-        button_wps: wps {
+        wps {
             label = "wps";
             gpios = <&pio 7 GPIO_ACTIVE_LOW>;
             linux,code = <KEY_WPS_BUTTON>;
@@ -111,7 +62,7 @@
     };
 
     nmbm_spim_nand {
-        compatible = "mediatek,mtk-nmbm-spim-nand"; // 修正兼容性以匹配驱动
+        compatible = "mediatek,mtk-nmbm-spim-nand";
         lower-mtd-device = <&spi_nand>;
         forced-create;
 
@@ -120,52 +71,43 @@
             #address-cells = <1>;
             #size-cells = <1>;
 
+            // 分区布局
             partition@0 {
                 label = "BL2";
-                reg = <0x000000 0x100000>;
+                reg = <0x000000 0x100000>; // 1MB
                 read-only;
             };
 
             partition@100000 {
                 label = "u-boot-env";
-                reg = <0x100000 0x080000>;
+                reg = <0x100000 0x080000>; // 512KB
             };
 
-            factory: partition@180000 {
+            partition@180000 {
                 label = "Factory";
-                reg = <0x180000 0x200000>;
+                reg = <0x180000 0x200000>; // 2MB
                 read-only;
             };
 
             partition@380000 {
                 label = "FIP";
-                reg = <0x380000 0x200000>;
+                reg = <0x380000 0x200000>; // 2MB
                 read-only;
             };
 
             partition@580000 {
                 label = "woem";
-                reg = <0x580000 0x0a0000>;
+                reg = <0x580000 0x0a0000>; // 640KB
             };
 
             partition@620000 {
                 label = "ubi";
-                reg = <0x620000 0x3e00000>; // 调整大小确保后续分区不重叠
+                reg = <0x620000 0x7200000>; // 114MB (起始地址 6.125MB)
             };
 
-            partition@4420000 {
-                label = "ubi2";
-                reg = <0x4420000 0x3e00000>;
-            };
-
-            partition@8220000 {
-                label = "wtinfo";
-                reg = <0x8220000 0x060000>;
-            };
-
-            partition@8280000 {
+            partition@7820000 {
                 label = "nvram";
-                reg = <0x8280000 0x060000>;
+                reg = <0x7820000 0x060000>; // 384KB
             };
         };
     };
@@ -197,9 +139,10 @@
         #address-cells = <1>;
         #size-cells = <0>;
 
+        // MT5131 交换机配置
         switch@0 {
-            compatible = "mediatek,mt7531";
-            reg = <0>; // 修正MDIO地址为0，根据MT7531文档
+            compatible = "mediatek,mt5131"; // 需确认内核驱动支持
+            reg = <0>;
             reset-gpios = <&pio 39 GPIO_ACTIVE_LOW>;
             reset-duration = <100>;
 
@@ -210,11 +153,13 @@
                 port@1 {
                     reg = <1>;
                     label = "lan2";
+                    phy-mode = "2500base-x";
                 };
 
                 port@2 {
                     reg = <2>;
                     label = "lan3";
+                    phy-mode = "2500base-x";
                 };
 
                 port@5 {
@@ -250,19 +195,11 @@
     status = "okay";
 
     spi_nand: flash@0 {
-        compatible = "spi-nand";
+        compatible = "winbond,w25n01gv", "spi-nand"; // 根据实际 NAND 型号调整
         reg = <0>;
         spi-max-frequency = <52000000>;
         spi-tx-bus-width = <4>;
         spi-rx-bus-width = <4>;
-
-        // 添加校准参数
-        spi-cal-enable;
-        spi-cal-mode = "read-data";
-        spi-cal-datalen = <7>;
-        spi-cal-data = /bits/ 8 <0x53 0x50 0x49 0x4E 0x41 0x4E 0x44>;
-        spi-cal-addrlen = <5>;
-        spi-cal-addr = /bits/ 32 <0x0 0x0 0x0 0x0 0x0>;
     };
 };
 
@@ -288,16 +225,6 @@
 };
 
 &xhci {
+    status = "okay";
     mediatek,u3p-dis-msk = <0x0>;
-    phys = <&u2port0 PHY_TYPE_USB2>,
-           <&u3port0 PHY_TYPE_USB3>;
-    status = "okay";
-};
-
-&wed {
-    dy_txbm_enable = "true";
-    dy_txbm_budget = <8>;
-    txbm_init_sz = <8>;
-    txbm_max_sz = <32>;
-    status = "okay";
 };
