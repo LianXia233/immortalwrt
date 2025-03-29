@@ -139,19 +139,20 @@ define Device/zx7981pm
   DEVICE_DTS := mt7981b-zx7981pm
   DEVICE_DTS_DIR := $(DTS_DIR)/mediatek
   SUPPORTED_DEVICES += zx,zx7981pm
+
   DEVICE_PACKAGES := \
     kmod-usb3 kmod-mt7915e kmod-mt7981-firmware \
-    mt7981-wo-firmware automount f2fsck mkf2fs \
+    kmod-mt7531-switch mt7981-wo-firmware
 
   # NAND 参数
   BLOCKSIZE := 128k
   PAGESIZE := 2048
   SUBPAGESIZE := 2048
   VID_HDR_OFFSET := 2048
-  IMAGE_SIZE := 114432k  # 114 MiB
 
   # UBI 生成参数
   UBINIZE_OPTS := -v -m 2048 -p 128KiB -s 2048 -O 2048
+  IMAGE_SIZE := 114432k  # 114 MiB
   KERNEL_IN_UBI := 1
 
   IMAGES := sysupgrade.bin factory.bin
