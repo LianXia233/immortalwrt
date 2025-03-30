@@ -137,7 +137,7 @@ define Device/zx7981pm
   DEVICE_VENDOR := ZX
   DEVICE_MODEL := ZX7981PM
   DEVICE_DTS := mt7981b-zx7981pm
-  DEVICE_DTS_DIR := $(DTS_DIR)/mediatek
+  DEVICE_DTS_DIR := ../dts
   SUPPORTED_DEVICES += zx,zx7981pm
 
   DEVICE_PACKAGES := \
