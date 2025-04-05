@@ -1,14 +1,4 @@
-// SPDX-License-Identifier: GPL-2.0-or-later OR MIT
-/*
- * Copyright (C) 2023-2024 Your Name <your@email.org>
- */
-
 /dts-v1/;
-#include <dt-bindings/gpio/gpio.h>
-#include <dt-bindings/input/input.h>
-#include <dt-bindings/leds/common.h>
-#include "mt7981.dtsi"
-
 / {
     model = "ZX7981PM (MT7981 + MT7531)";
     compatible = "zx,zx7981pm", "mediatek,mt7981";
@@ -27,7 +17,7 @@
     };
 
     memory {
-        reg = <0 0x40000000 0 0x20000000>; // 512MB RAM
+        reg = <0 0x40000000 0 0x20000000>;  /* 512MB RAM */
     };
 
     gpio-keys {
@@ -109,7 +99,7 @@
 
             partition@620000 {
                 label = "ubi";
-                reg = <0x620000 0x7200000>; // 114 MiB
+                reg = <0x620000 0x7200000>;  /* 114 MiB */
             };
         };
     };
