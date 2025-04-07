@@ -138,26 +138,32 @@ define Device/zx7981pm
   DEVICE_MODEL := ZX7981PM
   DEVICE_DTS := mt7981b-zx7981pm
   DEVICE_DTS_DIR := ../dts
-  SUPPORTED_DEVICES += zx,zx7981pm
-
-  DEVICE_PACKAGES := \
-    kmod-usb3 kmod-mt7915e kmod-mt7981-firmware \
-    kmod-mt7531-switch mt7981-wo-firmware
-
-  # NAND 参数
+  
+  # NAND存储参数（对齐Cudy配置）
+  UBINIZE_OPTS := -E 5
   BLOCKSIZE := 128k
   PAGESIZE := 2048
-  SUBPAGESIZE := 2048
-  VID_HDR_OFFSET := 2048
-
-  # UBI 生成参数
-  UBINIZE_OPTS := -v -m 2048 -p 128KiB -s 2048 -O 2048
-  IMAGE_SIZE := 114432k  # 114 MiB
+  IMAGE_SIZE := 65536k  # 64MB固定分区
   KERNEL_IN_UBI := 1
-
-  IMAGES := sysupgrade.bin factory.bin
-  IMAGE/factory.bin := append-ubi | check-size $$$$(IMAGE_SIZE)
+  
+  # 固件生成规则
+  IMAGES := sysupgrade.bin
   IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
+  
+  # 核心驱动包（精简版）
+  DEVICE_PACKAGES := kmod-usb3 kmod-mt7915e \
+        kmod-mt7981-firmware mt7981-wo-firmware \
+        automount
+  
+  # 引导文件配置（DDR3专用）
+  ARTIFACTS := nand-preloader.bin nand-bl31-uboot.fip
+  ARTIFACT/nand-preloader.bin := mt7981-bl2 spim-nand-ddr3
+  ARTIFACT/nand-bl31-uboot.fip := mt7981-bl31-uboot zx7981pm-nand
+  
+  # 内核配置（新增恢复镜像）
+  KERNEL_INITRAMFS := kernel-bin | lzma | \
+        fit lzma $$(KDIR)/image-$$(DEVICE_DTS).dtb with-initrd
+  KERNEL_INITRAMFS_SUFFIX := -recovery.bin
 endef
 TARGET_DEVICES += zx7981pm
 
