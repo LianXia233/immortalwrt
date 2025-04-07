@@ -1,225 +1,163 @@
+// SPDX-License-Identifier: GPL-2.0-or-later OR MIT
+/*
+ * 基于 ZX7981PM 的 ImmortalWrt 设备树示例，参考了类似机型（如 CMCC RAX3000M）的配置
+ */
+
 /dts-v1/;
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/input/input.h>
+#include <dt-bindings/leds/common.h>
+
+#include "mt7981.dtsi"
+
 / {
-    model = "ZX7981PM (MT7981 + MT7531)";
-    compatible = "zx,zx7981pm", "mediatek,mt7981";
+	model = "ZX7981PM";
+	compatible = "immortalwrt,ZX7981PM", "ZX7981PM";
 
-    aliases {
-        led-boot = &red_led;
-        led-failsafe = &red_led;
-        led-running = &green_led;
-        led-upgrade = &green_led;
-        serial0 = &uart0;
-    };
+	aliases {
+		serial0 = &uart0;
+		led-boot = &red_led;
+		led-failsafe = &red_led;
+		led-running = &green_led;
+		led-upgrade = &green_led;
+	};
 
-    chosen {
-        bootargs = "console=ttyS0,115200n1 earlycon=uart8250,mmio32,0x11002000 root=ubi0:rootfs rootfstype=squashfs ubi.mtd=ubi";
-        stdout-path = "serial0:115200n8";
-    };
+	chosen {
+		bootargs-override = "console=ttyS0,115200n1 loglevel=8 earlycon=uart8250,mmio32,0x11002000 root=/dev/fit0 rootwait";
+		stdout-path = "serial0:115200n8";
+	};
 
-    memory {
-        reg = <0 0x40000000 0 0x20000000>;  /* 512MB RAM */
-    };
+	memory {
+		// 内存区域定义：FPGA DDR2 128MB*2
+		reg = <0 0x40000000 0 0x20000000>;
+	};
 
-    gpio-keys {
-        compatible = "gpio-keys";
+	gpio-keys {
+		compatible = "gpio-keys";
 
-        button-reset {
-            label = "reset";
-            linux,code = <KEY_RESTART>;
-            gpios = <&pio 1 GPIO_ACTIVE_LOW>;
-        };
+		button-reset {
+			label = "reset";
+			linux,code = <KEY_RESTART>;
+			gpios = <&pio 1 GPIO_ACTIVE_LOW>;
+		};
 
-        button-mesh {
-            label = "mesh";
-            linux,code = <BTN_9>;
-            linux,input-type = <EV_SW>;
-            gpios = <&pio 0 GPIO_ACTIVE_LOW>;
-        };
-    };
+		// 如有其它按键，可参考如下添加
+		/* button-mesh {
+			label = "mesh";
+			linux,code = <BTN_9>;
+			linux,input-type = <EV_SW>;
+			gpios = <&pio 0 GPIO_ACTIVE_LOW>;
+		}; */
+	};
 
-    gpio-leds {
-        compatible = "gpio-leds";
+	gpio-leds {
+		compatible = "gpio-leds";
 
-        green_led: led-0 {
-            function = LED_FUNCTION_STATUS;
-            color = <LED_COLOR_ID_GREEN>;
-            gpios = <&pio 9 GPIO_ACTIVE_LOW>;
-        };
+		green_led: led-0 {
+			function = LED_FUNCTION_STATUS;
+			color = <LED_COLOR_ID_GREEN>;
+			gpios = <&pio 9 GPIO_ACTIVE_LOW>;
+		};
 
-        led-1 {
-            function = LED_FUNCTION_WAN;
-            color = <LED_COLOR_ID_BLUE>;
-            gpios = <&pio 12 GPIO_ACTIVE_LOW>;
-        };
+		led-1 {
+			function = LED_FUNCTION_STATUS;
+			color = <LED_COLOR_ID_BLUE>;
+			gpios = <&pio 12 GPIO_ACTIVE_LOW>;
+		};
 
-        red_led: led-2 {
-            function = LED_FUNCTION_ERROR;
-            color = <LED_COLOR_ID_RED>;
-            gpios = <&pio 35 GPIO_ACTIVE_LOW>;
-        };
-    };
+		red_led: led-2 {
+			function = LED_FUNCTION_STATUS;
+			color = <LED_COLOR_ID_RED>;
+			gpios = <&pio 35 GPIO_ACTIVE_LOW>;
+		};
+	};
 
-    nmbm_spim_nand {
-        compatible = "mediatek,mtk-nmbm-spim-nand";
-        lower-mtd-device = <&spi_nand>;
-        forced-create;
-
-        partitions {
-            compatible = "fixed-partitions";
-            #address-cells = <1>;
-            #size-cells = <1>;
-
-            partition@0 {
-                label = "BL2";
-                reg = <0x000000 0x100000>;
-                read-only;
-            };
-
-            partition@100000 {
-                label = "u-boot-env";
-                reg = <0x100000 0x080000>;
-            };
-
-            partition@180000 {
-                label = "Factory";
-                reg = <0x180000 0x200000>;
-                read-only;
-            };
-
-            partition@380000 {
-                label = "FIP";
-                reg = <0x380000 0x200000>;
-                read-only;
-            };
-
-            partition@580000 {
-                label = "woem";
-                reg = <0x580000 0x0a0000>;
-            };
-
-            partition@620000 {
-                label = "ubi";
-                reg = <0x620000 0x7200000>;  /* 114 MiB */
-            };
-        };
-    };
+	// 如果需要原有板上其它 GPIO 导出或 LED 定义，可在此添加
 };
 
 &eth {
-    status = "okay";
+	status = "okay";
 
-    gmac0: mac@0 {
-        compatible = "mediatek,eth-mac";
-        reg = <0>;
-        phy-mode = "2500base-x";
-        fixed-link {
-            speed = <2500>;
-            full-duplex;
-            pause;
-        };
-    };
+	gmac0: mac@0 {
+		compatible = "mediatek,eth-mac";
+		reg = <0>;
+		phy-mode = "2500base-x";
+		fixed-link {
+			speed = <2500>;
+			full-duplex;
+			pause;
+		};
+	};
 
-    gmac1: mac@1 {
-        compatible = "mediatek,eth-mac";
-        reg = <1>;
-        phy-mode = "gmii";
-        phy-handle = <&int_gbe_phy>;
-    };
+	gmac1: mac@1 {
+		compatible = "mediatek,eth-mac";
+		reg = <1>;
+		phy-mode = "gmii";
+		/* 如有外部 PHY，可添加 phy-handle 指向对应节点 */
+	};
 };
 
 &mdio_bus {
-    int_gbe_phy: phy@0 {
-        reg = <0>;
-        compatible = "ethernet-phy-id03a2.9461";
-    };
-
-    switch: switch@1f {
-        compatible = "mediatek,mt7531";
-        reg = <31>;
-        reset-gpios = <&pio 39 GPIO_ACTIVE_HIGH>;
-        interrupt-controller;
-        #interrupt-cells = <1>;
-        interrupt-parent = <&pio>;
-        interrupts = <38 IRQ_TYPE_LEVEL_HIGH>;
-    };
+	switch: switch@1f {
+		compatible = "mediatek,mt7531";
+		reg = <31>;
+		reset-gpios = <&pio 39 GPIO_ACTIVE_HIGH>;
+		interrupt-controller;
+		#interrupt-cells = <1>;
+		interrupt-parent = <&pio>;
+		interrupts = <38 IRQ_TYPE_LEVEL_HIGH>;
+	};
 };
 
 &switch {
-    ports {
-        #address-cells = <1>;
-        #size-cells = <0>;
+	ports {
+		#address-cells = <1>;
+		#size-cells = <0>;
 
-        port@0 {
-            reg = <0>;
-            label = "lan3";
-        };
+		port@0 {
+			reg = <0>;
+			label = "lan3";
+		};
 
-        port@1 {
-            reg = <1>;
-            label = "lan2";
-        };
+		port@1 {
+			reg = <1>;
+			label = "lan2";
+		};
 
-        port@2 {
-            reg = <2>;
-            label = "lan1";
-        };
+		port@2 {
+			reg = <2>;
+			label = "lan1";
+		};
 
-        port@6 {
-            reg = <6>;
-            ethernet = <&gmac0>;
-            phy-mode = "2500base-x";
-            fixed-link {
-                speed = <2500>;
-                full-duplex;
-                pause;
-            };
-        };
-    };
-};
-
-&spi0 {
-    pinctrl-names = "default";
-    pinctrl-0 = <&spi0_flash_pins>;
-    status = "okay";
-
-    spi_nand: flash@0 {
-        compatible = "winbond,w25n01gv", "spi-nand";
-        reg = <0>;
-        spi-max-frequency = <52000000>;
-        spi-tx-bus-width = <4>;
-        spi-rx-bus-width = <4>;
-    };
-};
-
-&pio {
-    spi0_flash_pins: spi0-pins {
-        mux {
-            function = "spi";
-            groups = "spi0", "spi0_wp_hold";
-        };
-
-        conf-pu {
-            pins = "SPI0_CS", "SPI0_HOLD", "SPI0_WP";
-            drive-strength = <MTK_DRIVE_8mA>;
-            bias-pull-up = <MTK_PUPD_SET_R1R0_11>;
-        };
-
-        conf-pd {
-            pins = "SPI0_CLK", "SPI0_MOSI", "SPI0_MISO";
-            drive-strength = <MTK_DRIVE_8mA>;
-            bias-pull-down = <MTK_PUPD_SET_R1R0_11>;
-        };
-    };
+		port@6 {
+			reg = <6>;
+			ethernet = <&gmac0>;
+			phy-mode = "2500base-x";
+			fixed-link {
+				speed = <2500>;
+				full-duplex;
+				pause;
+			};
+		};
+	};
 };
 
 &uart0 {
-    status = "okay";
+	status = "okay";
+};
+
+&usb_phy {
+	status = "okay";
 };
 
 &watchdog {
-    status = "okay";
+	status = "okay";
+};
+
+&wifi {
+	status = "okay";
 };
 
 &xhci {
-    status = "okay";
+	status = "okay";
 };
