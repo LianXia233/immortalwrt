@@ -138,32 +138,29 @@ define Device/zx7981pm
   DEVICE_MODEL := ZX7981PM
   DEVICE_DTS := mt7981b-zx7981pm
   DEVICE_DTS_DIR := ../dts
+  SUPPORTED_DEVICES += zx7981pm
   
-  # NAND存储参数（对齐Cudy配置）
+  # NAND参数（对齐Cudy配置）
   UBINIZE_OPTS := -E 5
   BLOCKSIZE := 128k
   PAGESIZE := 2048
   IMAGE_SIZE := 65536k  # 64MB固定分区
   KERNEL_IN_UBI := 1
   
-  # 固件生成规则
+  # 镜像生成规则（采用sysupgrade-tar格式）
   IMAGES := sysupgrade.bin
   IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
   
-  # 核心驱动包（精简版）
-  DEVICE_PACKAGES := kmod-usb3 kmod-mt7915e \
-        kmod-mt7981-firmware mt7981-wo-firmware \
-        automount
+  # 驱动包配置（排除交换机驱动）
+  DEVICE_PACKAGES := \
+    kmod-usb3 kmod-mt7915e \
+    kmod-mt7981-firmware mt7981-wo-firmware \
+    automount
   
   # 引导文件配置（DDR3专用）
   ARTIFACTS := nand-preloader.bin nand-bl31-uboot.fip
   ARTIFACT/nand-preloader.bin := mt7981-bl2 spim-nand-ddr3
   ARTIFACT/nand-bl31-uboot.fip := mt7981-bl31-uboot zx7981pm-nand
-  
-  # 内核配置（新增恢复镜像）
-  KERNEL_INITRAMFS := kernel-bin | lzma | \
-        fit lzma $$(KDIR)/image-$$(DEVICE_DTS).dtb with-initrd
-  KERNEL_INITRAMFS_SUFFIX := -recovery.bin
 endef
 TARGET_DEVICES += zx7981pm
 
