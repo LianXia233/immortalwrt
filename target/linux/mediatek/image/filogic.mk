@@ -139,23 +139,26 @@ define Device/zx7981pm
   DEVICE_DTS := mt7981b-zx7981pm
   DEVICE_DTS_DIR := ../dts
   SUPPORTED_DEVICES += zx7981pm
-  
-  # NAND存储参数
-  UBINIZE_OPTS := -E 5
+
+  # NAND 参数（保持原样）
   BLOCKSIZE := 128k
   PAGESIZE := 2048
-  IMAGE_SIZE := 65536k  # 64MB固定分区
-  KERNEL_IN_UBI := 1
-  
+  IMAGE_SIZE := 65536k  # 64MB
+
+  # 压缩配置
+  KERNEL_COMPRESSION := lzma
+  KERNEL := kernel-bin | lzma | fit lzma $$(KDIR)/image-$$(DEVICE_DTS).dtb
+  TARGET_ROOTFS_FSTYPE := squashfs
+  TARGET_SQUASHFS_COMP_OPTS := -Xcompression-level 12
+
   # 镜像生成规则
   IMAGES := sysupgrade.bin
-  IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
-  
-  # 核心驱动包
+  IMAGE/sysupgrade.bin := append-kernel | append-rootfs | pad-rootfs | check-size | append-metadata
+
+  # 最小化驱动包
   DEVICE_PACKAGES := \
     kmod-usb3 kmod-mt7915e \
-    kmod-mt7981-firmware mt7981-wo-firmware \
-    automount
+    kmod-mt7981-firmware mt7981-wo-firmware
 endef
 TARGET_DEVICES += zx7981pm
 
