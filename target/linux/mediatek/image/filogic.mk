@@ -140,27 +140,22 @@ define Device/zx7981pm
   DEVICE_DTS_DIR := ../dts
   SUPPORTED_DEVICES += zx7981pm
   
-  # NAND参数（对齐Cudy配置）
+  # NAND存储参数
   UBINIZE_OPTS := -E 5
   BLOCKSIZE := 128k
   PAGESIZE := 2048
   IMAGE_SIZE := 65536k  # 64MB固定分区
   KERNEL_IN_UBI := 1
   
-  # 镜像生成规则（采用sysupgrade-tar格式）
+  # 镜像生成规则
   IMAGES := sysupgrade.bin
   IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
   
-  # 驱动包配置（排除交换机驱动）
+  # 核心驱动包
   DEVICE_PACKAGES := \
     kmod-usb3 kmod-mt7915e \
     kmod-mt7981-firmware mt7981-wo-firmware \
     automount
-  
-  # 引导文件配置（DDR3专用）
-  ARTIFACTS := nand-preloader.bin nand-bl31-uboot.fip
-  ARTIFACT/nand-preloader.bin := mt7981-bl2 spim-nand-ddr3
-  ARTIFACT/nand-bl31-uboot.fip := mt7981-bl31-uboot zx7981pm-nand
 endef
 TARGET_DEVICES += zx7981pm
 
