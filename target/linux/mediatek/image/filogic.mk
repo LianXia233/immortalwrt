@@ -140,20 +140,26 @@ define Device/zx7981pm
   DEVICE_DTS_DIR := ../dts
   SUPPORTED_DEVICES += zx7981pm
 
-  # NAND 参数（与 DTS 分区匹配）
+  # NAND 参数（严格匹配 DTS 分区）
   BLOCKSIZE := 128k
   PAGESIZE := 2048
-  IMAGE_SIZE := 64MiB  # 与 DTS 的 ubi 分区大小一致（需确认是否足够）
+  IMAGE_SIZE := 64MiB  # 总镜像大小（64MB）
 
-  # 文件系统与压缩配置（适配 DTS）
-  TARGET_ROOTFS_FSTYPE := ubifs  # 或 squashfs（需与 DTS 分区类型一致）
+  # 文件系统与压缩（适配 DTS 的 UBIFS）
+  TARGET_ROOTFS_FSTYPE := ubifs
+  TARGET_SQUASHFS_COMP_OPTS :=  # 禁用 SquashFS
   KERNEL_COMPRESSION := lzma
-  KERNEL := kernel-bin | lzma | fit lzma $$(KDIR)/image-$$(DEVICE_DTS).dtb
 
-  # 驱动包（移除冗余驱动）
+  # 镜像生成规则（生成 sysupgrade + factory）
+  IMAGES := sysupgrade.bin factory.bin
+  IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
+  IMAGE/factory.bin := append-rootfs | pad-rootfs | check-size | append-metadata
+
+  # 驱动包（严格保留用户指定）
   DEVICE_PACKAGES := \
     kmod-usb3 kmod-mt7915e \
-    kmod-mt7981-firmware mt7981-firmware  # 移除 kmod-ath10k-ct
+    kmod-mt7981-firmware mt7981-wo-firmware \
+    automount  # 保留自动挂载支持
 
   # 设备树与固件路径
   DEVICE_DTS_OVERRIDE := mt7981b-zx7981pm.dts
