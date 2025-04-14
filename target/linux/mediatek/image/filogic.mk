@@ -143,7 +143,7 @@ define Device/zx7981pm
   # NAND 参数（严格匹配 DTS 分区）
   BLOCKSIZE := 128k
   PAGESIZE := 2048
-  IMAGE_SIZE := 64MiB  # 总镜像大小（64MB）
+  IMAGE_SIZE := 67108864  # 总镜像大小（64MB）
 
   # 文件系统与压缩（适配 DTS 的 UBIFS）
   TARGET_ROOTFS_FSTYPE := ubifs
