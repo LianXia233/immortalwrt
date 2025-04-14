@@ -136,35 +136,30 @@ TARGET_DEVICES += abt_asr3000
 define Device/zx7981pm
   DEVICE_VENDOR := ZX
   DEVICE_MODEL := ZX7981PM
-  DEVICE_DTS := mt7981b-zx7981pm
-  DEVICE_DTS_DIR := ../dts
-  SUPPORTED_DEVICES += zx7981pm
+  DEVICE_DTS := mt7981b-zx7981pm  # 必须与dts文件名前缀一致
+  DEVICE_DTS_DIR := ../dts         # 假设dts文件位于上层dts目录
 
-  # NAND 参数（严格匹配 DTS 分区）
-  BLOCKSIZE := 128k
-  PAGESIZE := 2048
-  IMAGE_SIZE := 67108864  # 总镜像大小（64MB）
+  # 存储参数 (严格匹配DTS的spi-nand定义)
+  BLOCKSIZE := 128k    # winbond,w25n01kv的块大小
+  PAGESIZE := 2048     # 页尺寸对齐OOB区域
+  IMAGE_SIZE := 65011712  # 精确计算: 0x3e00000 = 62,914,560字节
+  KERNEL_IN_UBI := 1      # 内核嵌入UBI结构
+  UBINIZE_OPTS := -E 5    # 5%额外空间处理坏块
 
-  # 文件系统与压缩（适配 DTS 的 UBIFS）
-  TARGET_ROOTFS_FSTYPE := ubifs
-  TARGET_SQUASHFS_COMP_OPTS :=  # 禁用 SquashFS
-  KERNEL_COMPRESSION := lzma
-
-  # 镜像生成规则（生成 sysupgrade + factory）
+  # 镜像生成规则
   IMAGES := sysupgrade.bin factory.bin
   IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
-  IMAGE/factory.bin := append-rootfs | pad-rootfs | check-size | append-metadata
+  IMAGE/factory.bin := append-ubi | check-size $$$$(IMAGE_SIZE)
 
-  # 驱动包（严格保留用户指定）
+  # 硬件驱动包 (根据DTS的硬件定义)
   DEVICE_PACKAGES := \
-    kmod-usb3 kmod-mt7915e \
-    kmod-mt7981-firmware mt7981-wo-firmware \
-    automount  # 保留自动挂载支持
+    kmod-mt7915e kmod-mt7981-firmware \
+    kmod-usb3 kmod-usb-storage \
+    kmod-fs-ext4 kmod-fs-vfat \
+    automount
 
-  # 设备树与固件路径
-  DEVICE_DTS_OVERRIDE := mt7981b-zx7981pm.dts
-  BOOTLOADER := uboot
-  UBOOT_DEVICE_TREE := mt7981b-zx7981pm
+  # 设备兼容性声明
+  SUPPORTED_DEVICES += zx7981pm,mediatek-mt7981
 endef
 TARGET_DEVICES += zx7981pm
 
