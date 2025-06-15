@@ -10,6 +10,14 @@ define Device/IfnameMigration
   DEVICE_COMPAT_MESSAGE := Network interface names have been changed
 endef
 
+define Device/widora_mangopi-m28c
+$(call Device/widora_mangopi-m28)
+  DEVICE_MODEL := MangoPi M28C
+  DEVICE_PACKAGES += kmod-usb-serial-option
+endef
+TARGET_DEVICES += widora_mangopi-m28c
+
+
 define Device/ariaboard_photonicat
   DEVICE_VENDOR := Ariaboard
   DEVICE_MODEL := Photonicat
