@@ -179,6 +179,21 @@ define Device/acer_predator-w6
 endef
 TARGET_DEVICES += acer_predator-w6
 
+define Device/Airpi
+  DEVICE_VENDOR := Airpi
+  DEVICE_MODEL := emmc
+  DEVICE_DTS := mt7981b-Airpi-emmc16G
+  DEVICE_DTS_DIR := ../dts
+  DEVICE_PACKAGES := kmod-usb-net-cdc-mbim  kmod-hwmon-pwmfan kmod-usb-net-qmi-wwan \
+		     kmod-usb-serial-option kmod-usb3 automount kmod-Airpi-gpio-fan \
+ 		f2fsck mkf2fs uqmi luci-app-Airpifanctrl
+  KERNEL := kernel-bin | lzma | fit lzma $$(KDIR)/image-$$(firstword $$(DEVICE_DTS)).dtb
+  KERNEL_INITRAMFS := kernel-bin | lzma | \
+        fit lzma $$(KDIR)/image-$$(firstword $$(DEVICE_DTS)).dtb with-initrd | pad-to 64k
+  IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
+endef
+TARGET_DEVICES += Airpi
+
 define Device/acer_predator-w6d
   DEVICE_VENDOR := Acer
   DEVICE_MODEL := Predator Connect W6d
